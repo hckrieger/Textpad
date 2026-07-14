@@ -1,0 +1,115 @@
+﻿<Window x:Class="TextPad.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TextPad"
+        mc:Ignorable="d"
+        Closing="Window_Closing"
+        Title="Textpad" Height="450" Width="650">
+    <Window.CommandBindings>
+        <CommandBinding Command="Open"
+                        x:Name="OpenCmd"
+                        Executed="OpenCmd_Executed"
+                        CanExecute="OpenCmd_CanExecute"/>
+        <CommandBinding Command="Save"
+                        CanExecute="SaveCmd_CanExecute"
+                        x:Name="SaveCmd"
+                        Executed="SaveCmd_Executed"/>
+        <CommandBinding Command="Close"
+                        x:Name="ExitCmd"
+                        Executed="ExitCmd_Executed"/>
+        <CommandBinding Command="SaveAs"
+                        x:Name="SaveAsCmd"
+                        CanExecute="SaveAsCmd_CanExecute"
+                        Executed="SaveAsCmd_Executed"/>
+        <CommandBinding Command="New"
+                        x:Name="NewCmd"
+                        CanExecute="NewCmd_CanExecute"
+                        Executed="NewCmd_Executed"/>
+        <CommandBinding Command="Delete"
+                        x:Name="DeleteCmd"
+                        CanExecute="IfHasText_CanExecute"
+                        Executed="DeleteCmd_Executed" />
+        <CommandBinding Command="Find"
+                        x:Name="FindCmd"
+                        CanExecute="IfHasText_CanExecute"
+                        Executed="FindCmd_Executed"/>
+        <CommandBinding Command="Replace"
+                        x:Name="ReplaceCmd"                      
+                        CanExecute="IfHasText_CanExecute"
+                        Executed="ReplaceCmd_Executed"/>
+        <CommandBinding Command="IncreaseZoom"
+                        x:Name="IncreaseZoomCmd"
+                        CanExecute="IncreaseZoomCmd_CanExecute"
+                        Executed="IncreaseZoomCmd_Executed"/>
+        <CommandBinding Command="DecreaseZoom"
+                        x:Name="DecreaseZoomCmd"
+                        CanExecute="DecreaseZoomCmd_CanExecute"
+                        Executed="DecreaseZoomCmd_Executed"/>
+
+
+    </Window.CommandBindings>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" FontSize="16" Background="LightGray" BorderBrush="Black">
+            <MenuItem Header="_File">                                 
+                <MenuItem Header="_New..." Command="New"/>
+                <MenuItem Header="_Open..." Command="Open"/>
+                <MenuItem Header="_Save..." Command="Save"/>
+                <MenuItem Header="_Save as..." Command="SaveAs"/>
+                <Separator/>
+                <MenuItem Header="Print"/>
+                <Separator/>
+                <MenuItem Header="Exit" Command="Close"/>
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Header="Undo" Command="Undo"/>
+                <MenuItem Header="Copy" Command="Copy"/>
+                <MenuItem Header="Cut" Command="Cut" />
+                <MenuItem Header="Paste" Command="Paste" />
+                <MenuItem Header="Delete" Command="Delete"/>
+                <Separator/>
+           <!--     <MenuItem Header="Find" Command="Find" />
+                <MenuItem Header="Replace" Command="Replace" />
+                <Separator/> -->
+                <MenuItem Header="Select All" Command="SelectAll" />
+            </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem Header="Word Wrap" x:Name="wordWrapMenuItem" Click="wordWrapMenuItem_Click" />
+                <MenuItem Header="Zoom" x:Name="zoomMenuItem">
+                    <MenuItem Header="Zoom in" x:Name="zoomInMenuItem" Command="IncreaseZoom" />
+                    <MenuItem Header="Zoom out" x:Name="zoomOutMenuItem" Command="DecreaseZoom" />
+                    <MenuItem Header="Default zoom" x:Name="defaultZoom" Click="defaultZoom_Click"/>
+                </MenuItem> 
+            </MenuItem>
+
+        </Menu>
+        <DockPanel DockPanel.Dock="Top" Height="Auto" Background="LightGray"  x:Name="findPanel" Visibility="Collapsed"  >
+            <Button Content="v" Width="12" DockPanel.Dock="Left" HorizontalAlignment="Left" x:Name="dropDownForReplaceButton" Click="dropDownForReplace_Click" />
+            <TextBox Width="150" DockPanel.Dock="Left" HorizontalAlignment="Left" x:Name="findSearchBox" Margin="0 0 5 0" TextChanged="findSearchBox_TextChanged"/>
+            <Button Content="Find" Width="50" DockPanel.Dock="Left" x:Name="findButton" Click="findButton_Click" ClickMode="Press"/>
+           
+            <Button Content="x" DockPanel.Dock="Right" HorizontalAlignment="Right" Padding="6 0 6 0" x:Name="closeFindPanelButton" Click="closeFindPanelButton_Click"/>
+            <CheckBox Content="Match Case" IsChecked="False" x:Name="matchedCaseCheckBox" Margin="0 0 0 0" DockPanel.Dock="Left" HorizontalAlignment="Left" />
+            
+        </DockPanel>
+        <DockPanel DockPanel.Dock="Top" Background="LightGray"  x:Name="replacePanel" Visibility="Collapsed">
+            <TextBox Width="150" DockPanel.Dock="Left" HorizontalAlignment="Left" x:Name="replaceBox" Margin="12 0 5 0"/>
+            <Button Content="Replace" Width="70" DockPanel.Dock="Left" x:Name="replaceButton" Click="replaceButton_Click" ClickMode="Press"/>
+            <Button Content="Replace All" Width="70" DockPanel.Dock="Left" HorizontalAlignment="Left" x:Name="replaceAllButton" Click="replaceAllButton_Click" ClickMode="Press"/>
+            
+        </DockPanel>
+
+
+        <StatusBar RenderOptions.BitmapScalingMode="NearestNeighbor" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="Auto">
+            <Label x:Name="linesAndColumnsLabel" Content="Ln 1, Col 1" Height="27"/>
+            <Separator />
+            <Label x:Name="characterCountLabel" Content="0 characters" />
+        </StatusBar>
+
+
+
+        <TextBox x:Name="mainTextBox" FontSize="16" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextChanged="mainTextBox_TextChanged" />
+    </DockPanel>
+    
+</Window>
