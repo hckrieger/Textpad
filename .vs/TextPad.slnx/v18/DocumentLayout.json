@@ -30,16 +30,27 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\hckri\\source\\repos\\Desktop\\WPF\\TextPad\\TextPad\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "TextPad\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\hckri\\source\\repos\\Desktop\\WPF\\TextPad\\TextPad\\MainWindow.xaml",
+              "RelativeToolTip": "TextPad\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-07-15T23:19:09.311Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\hckri\\source\\repos\\Desktop\\WPF\\TextPad\\TextPad\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "TextPad\\MainWindow.xaml.cs",
               "ToolTip": "C:\\Users\\hckri\\source\\repos\\Desktop\\WPF\\TextPad\\TextPad\\MainWindow.xaml.cs",
               "RelativeToolTip": "TextPad\\MainWindow.xaml.cs",
-              "ViewState": "AgIAAEQBAAAAAAAAAAAiwEcBAABVAAAAAAAAAA==",
+              "ViewState": "AgIAAMoAAAAAAAAAAAAcwEcBAABVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-07-04T19:45:24.489Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-07-04T19:45:24.489Z"
             },
             {
               "$type": "Document",
@@ -52,24 +63,10 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
               "WhenOpened": "2026-07-09T01:02:44.572Z"
-            }
-          ]
-        },
-        {
-          "DockedHeight": 200,
-          "SelectedChildIndex": 0,
-          "Children": [
+            },
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "MainWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\hckri\\source\\repos\\Desktop\\WPF\\TextPad\\TextPad\\MainWindow.xaml",
-              "RelativeDocumentMoniker": "TextPad\\MainWindow.xaml",
-              "ToolTip": "C:\\Users\\hckri\\source\\repos\\Desktop\\WPF\\TextPad\\TextPad\\MainWindow.xaml",
-              "RelativeToolTip": "TextPad\\MainWindow.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-07-04T19:45:25.74Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
             }
           ]
         }
