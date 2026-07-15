@@ -47,6 +47,10 @@
                         x:Name="DecreaseZoomCmd"
                         CanExecute="DecreaseZoomCmd_CanExecute"
                         Executed="DecreaseZoomCmd_Executed"/>
+        <CommandBinding Command="Print"
+                        x:Name="PrintCmd"
+                        CanExecute="PrintCmd_CanExecute"
+                        Executed="PrintCmd_Executed"/>
 
 
     </Window.CommandBindings>
@@ -58,7 +62,7 @@
                 <MenuItem Header="_Save..." Command="Save"/>
                 <MenuItem Header="_Save as..." Command="SaveAs"/>
                 <Separator/>
-                <MenuItem Header="Print"/>
+                <MenuItem Header="Print" Command="Print"/>
                 <Separator/>
                 <MenuItem Header="Exit" Command="Close"/>
             </MenuItem>
