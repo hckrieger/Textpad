@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Xps.Packaging;
 
 namespace TextPad
 {
@@ -356,6 +357,30 @@ namespace TextPad
 
 			linesAndColumnsLabel.Content = $"Ln {line+1}, Col {column+1}";
 			characterCountLabel.Content = $"{mainTextBox.Text.Length} Characters";
+		}
+
+		private void PrintCmd_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+		}
+
+		private void PrintCmd_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			PrintDialog printDialog = new PrintDialog
+			{
+				PageRangeSelection = PageRangeSelection.AllPages,
+				UserPageRangeEnabled = true,
+			};
+
+			Nullable<Boolean> print = printDialog.ShowDialog();
+
+			if (print.Value)
+			{
+				XpsDocument xpsDocument = new XpsDocument($"{AppDomain.CurrentDomain.BaseDirectory}\\Document.xps", FileAccess.ReadWrite);
+				FixedDocumentSequence fixedDocSeq = xpsDocument.GetFixedDocumentSequence();
+				printDialog.PrintDocument(fixedDocSeq.DocumentPaginator, "Print job");
+			}
+
 		}
 
 		private void IncreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
