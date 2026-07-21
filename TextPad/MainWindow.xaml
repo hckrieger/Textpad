@@ -32,6 +32,7 @@
                         x:Name="DeleteCmd"
                         CanExecute="IfHasText_CanExecute"
                         Executed="DeleteCmd_Executed" />
+       
         <CommandBinding Command="Find"
                         x:Name="FindCmd"
                         CanExecute="IfHasText_CanExecute"
@@ -74,9 +75,9 @@
                 <MenuItem Header="Paste" Command="Paste" />
                 <MenuItem Header="Delete" Command="Delete"/>
                 <Separator/>
-           <!--     <MenuItem Header="Find" Command="Find" />
+                <MenuItem Header="Find" Command="Find" />
                 <MenuItem Header="Replace" Command="Replace" />
-                <Separator/> -->
+                <Separator/> 
                 <MenuItem Header="Select All" Command="SelectAll" />
             </MenuItem>
             <MenuItem Header="View">
@@ -89,6 +90,7 @@
             </MenuItem>
 
         </Menu>
+        <!--Dropdown Find textbox-->
         <DockPanel DockPanel.Dock="Top" Height="Auto" Background="LightGray"  x:Name="findPanel" Visibility="Collapsed"  >
             <Button Content="v" Width="12" DockPanel.Dock="Left" HorizontalAlignment="Left" x:Name="dropDownForReplaceButton" Click="dropDownForReplace_Click" />
             <TextBox Width="150" DockPanel.Dock="Left" HorizontalAlignment="Left" x:Name="findSearchBox" Margin="0 0 5 0" TextChanged="findSearchBox_TextChanged"/>
@@ -98,6 +100,7 @@
             <CheckBox Content="Match Case" IsChecked="False" x:Name="matchedCaseCheckBox" Margin="0 0 0 0" DockPanel.Dock="Left" HorizontalAlignment="Left" />
             
         </DockPanel>
+        <!--Dropdown Replace textbox-->
         <DockPanel DockPanel.Dock="Top" Background="LightGray"  x:Name="replacePanel" Visibility="Collapsed">
             <TextBox Width="150" DockPanel.Dock="Left" HorizontalAlignment="Left" x:Name="replaceBox" Margin="12 0 5 0"/>
             <Button Content="Replace" Width="70" DockPanel.Dock="Left" x:Name="replaceButton" Click="replaceButton_Click" ClickMode="Press"/>
@@ -105,7 +108,7 @@
             
         </DockPanel>
 
-
+        <!--Status bar-->
         <StatusBar RenderOptions.BitmapScalingMode="NearestNeighbor" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="Auto">
             <Label x:Name="linesAndColumnsLabel" Content="Ln 1, Col 1" Height="27"/>
             <Separator />
@@ -114,7 +117,7 @@
 
 
 
-        <TextBox x:Name="mainTextBox" FontSize="16" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextChanged="mainTextBox_TextChanged" />
+        <TextBox x:Name="mainTextBox" FontSize="16" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextChanged="mainTextBox_TextChanged" SelectionChanged="mainTextBox_SelectionChanged" />
     </DockPanel>
     
 </Window>

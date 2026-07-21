@@ -25,6 +25,9 @@ namespace TextPad
 		string? currentFile;
 		bool justReplaced = false;
 		int minFontSize = 4, maxFontSize = 48;
+		int startingIndexOfFindText = 0;
+		int findInstanceIndex = 0;
+
 		private string? CurrentFile
 		{
 			get => currentFile;
@@ -220,9 +223,6 @@ namespace TextPad
 		private void FindCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			findPanel.Visibility = Visibility.Visible;
-			
-			findSearchBox.Focus();
-			
 		}
 
 		private void closeFindPanelButton_Click(object sender, RoutedEventArgs e)
@@ -230,24 +230,12 @@ namespace TextPad
 			findPanel.Visibility = Visibility.Collapsed;
 			replacePanel.Visibility = Visibility.Collapsed;
 			dropDownForReplaceButton.Content = "v";
-
 		}
 
 
 
 		private void replaceButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (string.IsNullOrEmpty(mainTextBox.SelectedText))
-			{
-				FindNext();
-				return;
-			}
-			{
-				mainTextBox.SelectedText = replaceBox.Text;
-				FindNext();
-			}
-
-			
 
 		}
 
@@ -258,12 +246,12 @@ namespace TextPad
 
 		private void findSearchBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			findIndex = 0;
+			
 		}
 
 		private void dropDownForReplace_Click(object sender, RoutedEventArgs e)
 		{
-			if (replacePanel.Visibility != Visibility.Visible)
+			if (replacePanel.Visibility == Visibility.Collapsed)
 			{
 				replacePanel.Visibility = Visibility.Visible;
 				dropDownForReplaceButton.Content = "^";
@@ -272,69 +260,16 @@ namespace TextPad
 				replacePanel.Visibility = Visibility.Collapsed;
 				dropDownForReplaceButton.Content = "v";
 			}
-
 		}
 
 
 
 		private void ReplaceCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			findPanel.Visibility = Visibility.Visible;
-			replacePanel.Visibility = Visibility.Visible;
-			dropDownForReplaceButton.Content = "^";
-
-			if (mainTextBox.SelectedText.Length > 0)
-			{
-				findSearchBox.Text = mainTextBox.SelectedText;
-			} 
-		}
-
-		private void FindNextText()
-		{
 
 		}
 
-		private void FindNext()
-		{
-			string searchText = findSearchBox.Text;
-			if (searchText.Length == 0)
-				return;
 
-			//remember to reset the findIndex if the search text and check box has changed
-
-			StringComparison comparison = matchedCaseCheckBox.IsChecked == true
-				? StringComparison.OrdinalIgnoreCase
-				: StringComparison.Ordinal;
-
-			void findFromIndex(int index)
-			{
-				findIndex = mainTextBox.Text.IndexOf(searchText, index, comparison);
-			}
-
-		   if (!string.IsNullOrEmpty(mainTextBox.SelectedText))
-		   {
-				while (findIndex <= mainTextBox.CaretIndex && findIndex >= 0 && !justReplaced)
-					findFromIndex(findIndex + searchText.Length);
-		   }
-
-
-
-			if (findIndex == -1)
-				findFromIndex(0);
-
-			if (findIndex == -1)
-			{
-				Debug.WriteLine("Cannot find it");
-				findSearchBox.Background = Brushes.PaleVioletRed;
-				return;
-			}
-
-			mainTextBox.Focus();
-			mainTextBox.SelectionStart = findIndex;
-			mainTextBox.SelectionLength = searchText.Length;
-			findSearchBox.Background = Brushes.White;
-			justReplaced = false;
-		}
 
 	
 
@@ -399,18 +334,46 @@ namespace TextPad
 		
 		}
 
-
-
+		private void mainTextBox_SelectionChanged(object sender, RoutedEventArgs e)
+		{
+			findInstanceIndex = 0;
+			startingIndexOfFindText = 0;
+		}
 
 		private void IncreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			mainTextBox.FontSize = Math.Min(mainTextBox.FontSize + 4, maxFontSize);
 		}
 
+		private void FindNext()
+		{
+			while (startingIndexOfFindText < mainTextBox.CaretIndex + mainTextBox.SelectedText.Length)
+			{
+				if (startingIndexOfFindText == -1)
+				{
+					mainTextBox.CaretIndex = 0;
+					findInstanceIndex = 0;
+					startingIndexOfFindText = 0;
+
+				}
+				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex--);
+			}
+
+
+
+			int lengthOfFindText = findSearchBox.Text.Length;
+
+			mainTextBox.Focus();
+			mainTextBox.SelectionStart = startingIndexOfFindText;
+			mainTextBox.SelectionLength = lengthOfFindText;
+		}
+
 		private void findButton_Click(object sender, RoutedEventArgs e)
 		{
 
+
 			FindNext();
+			
 
 		}
 
