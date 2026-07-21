@@ -356,11 +356,38 @@ namespace TextPad
 					startingIndexOfFindText = 0;
 
 				}
-				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex--);
+				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex++);
 			}
 
 
+			SelectFindText();
 
+		}
+
+		private void FindPrevious()
+		{
+			int instanceCount = 0;
+			while (startingIndexOfFindText < mainTextBox.CaretIndex + mainTextBox.SelectedText.Length)
+			{
+				instanceCount++;
+				if (startingIndexOfFindText == -1)
+				{
+					break;
+				}
+			}
+
+				while (startingIndexOfFindText > mainTextBox.CaretIndex - mainTextBox.SelectedText.Length)
+			{
+
+				findInstanceIndex = (findInstanceIndex == 0) ? instanceCount : findInstanceIndex--;
+				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex);
+			}
+
+			SelectFindText();
+		}
+
+		private void SelectFindText()
+		{
 			int lengthOfFindText = findSearchBox.Text.Length;
 
 			mainTextBox.Focus();
