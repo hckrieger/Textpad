@@ -1,6 +1,8 @@
 ﻿using Microsoft.Win32;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Printing;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Xps;
 using System.Windows.Xps.Packaging;
 
 namespace TextPad
@@ -54,7 +57,6 @@ namespace TextPad
 			InitializeComponent();
 			findIndex = 0;
 			findInstances = 0;
-	
 		}
 
 		
@@ -115,25 +117,36 @@ namespace TextPad
 
 		}
 
-		private void Window_Closing(object sender, EventArgs e)
+
+
+		private void Window_Closing(object sender, CancelEventArgs e)
 		{
 			if ((currentFile == null && mainTextBox.Text.Length > 0) || currentFile != null && mainTextBox.Text != File.ReadAllText(currentFile))
 			{
 				MessageBoxResult result = MessageBox.Show("Do you want to save changes?", "TextPad", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
 				if (result == MessageBoxResult.Yes)
 				{
-					File.WriteAllText(currentFile, mainTextBox.Text);
+					if (currentFile != null)
+					{
+						File.WriteAllText(currentFile, mainTextBox.Text);
+					} else
+					{
+						SaveFileProcess();
+						if (currentFile == null)
+							e.Cancel = true;
+					}
+					
 				}
 				else if (result == MessageBoxResult.Cancel)
 				{
-					return;
+					e.Cancel = true;
 				}
+				//Close();
 			}
 		}
 
 		private void ExitCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			Window_Closing(sender, e);
 			Close();
 		}
 
@@ -143,9 +156,8 @@ namespace TextPad
 			e.CanExecute = (saveCondition) ? true : false;
 		}
 
-		private void SaveAsCmd_Executed(object sender, ExecutedRoutedEventArgs e)
+		private void SaveFileProcess()
 		{
-			
 			SaveFileDialog saveFileDialog = new SaveFileDialog()
 			{
 				Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
@@ -155,7 +167,7 @@ namespace TextPad
 
 			if (!string.IsNullOrEmpty(currentFile))
 			{
-				saveFileDialog.FileName =  Path.GetFileNameWithoutExtension(currentFile);
+				saveFileDialog.FileName = Path.GetFileNameWithoutExtension(currentFile);
 			}
 
 			if (saveFileDialog.ShowDialog() == true)
@@ -163,6 +175,12 @@ namespace TextPad
 				CurrentFile = saveFileDialog.FileName;
 				File.WriteAllText(currentFile, mainTextBox.Text);
 			}
+		}
+
+		private void SaveAsCmd_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+
+			SaveFileProcess();
 			
 		}
 
@@ -348,14 +366,13 @@ namespace TextPad
 
 		private void mainTextBox_TextChanged(object sender, TextChangedEventArgs e)
 		{
-			int caretIndex = mainTextBox.CaretIndex;
+			string textBeforeCaret = mainTextBox.Text[..mainTextBox.CaretIndex];
 
-			int line = mainTextBox.GetLineIndexFromCharacterIndex(caretIndex);
-			int lineStartCharIndex = mainTextBox.GetCharacterIndexFromLineIndex(line);
+			int line = textBeforeCaret.Count(c => c == '\n');
+			int lastNewLineIndex = textBeforeCaret.LastIndexOf('\n');
+			int column = mainTextBox.CaretIndex - lastNewLineIndex - 1;
 
-			int column = caretIndex - lineStartCharIndex;
-
-			linesAndColumnsLabel.Content = $"Ln {line+1}, Col {column+1}";
+			linesAndColumnsLabel.Content = $"Ln {line + 1}, Col {column + 1}";
 			characterCountLabel.Content = $"{mainTextBox.Text.Length} Characters";
 		}
 
@@ -365,23 +382,25 @@ namespace TextPad
 		}
 
 		private void PrintCmd_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			PrintDialog printDialog = new PrintDialog
+		{ 
+			PrintDialog printDialog = new PrintDialog();
+			if (printDialog.ShowDialog() == true)
 			{
-				PageRangeSelection = PageRangeSelection.AllPages,
-				UserPageRangeEnabled = true,
-			};
+				FlowDocument document = new FlowDocument(new Paragraph(new Run(mainTextBox.Text)));
+				document.PagePadding = new Thickness(50);
+				document.FontSize = mainTextBox.FontSize;
 
-			Nullable<Boolean> print = printDialog.ShowDialog();
+				printDialog.PrintDocument(
+					((IDocumentPaginatorSource)document).DocumentPaginator, "Print TextBox Content"
+				);
 
-			if (print.Value)
-			{
-				XpsDocument xpsDocument = new XpsDocument($"{AppDomain.CurrentDomain.BaseDirectory}\\Document.xps", FileAccess.ReadWrite);
-				FixedDocumentSequence fixedDocSeq = xpsDocument.GetFixedDocumentSequence();
-				printDialog.PrintDocument(fixedDocSeq.DocumentPaginator, "Print job");
 			}
 
+		
 		}
+
+
+
 
 		private void IncreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
