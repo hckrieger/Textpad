@@ -81,11 +81,11 @@
                 <MenuItem Header="Select All" Command="SelectAll" />
             </MenuItem>
             <MenuItem Header="View">
-                <MenuItem Header="Word Wrap" x:Name="wordWrapMenuItem" Click="wordWrapMenuItem_Click" />
+                <MenuItem Header="Word Wrap" x:Name="wordWrapMenuItem" IsChecked="True"  Click="wordWrapMenuItem_Click" />
                 <MenuItem Header="Zoom" x:Name="zoomMenuItem">
-                    <MenuItem Header="Zoom in" x:Name="zoomInMenuItem" Command="IncreaseZoom" />
-                    <MenuItem Header="Zoom out" x:Name="zoomOutMenuItem" Command="DecreaseZoom" />
-                    <MenuItem Header="Default zoom" x:Name="defaultZoom" Click="defaultZoom_Click"/>
+                    <MenuItem Header="Zoom in" InputGestureText="Ctrl+Plus" x:Name="zoomInMenuItem" Command="IncreaseZoom" />
+                    <MenuItem Header="Zoom out" InputGestureText="Ctrl+Minus" x:Name="zoomOutMenuItem" Command="DecreaseZoom" />
+                    <MenuItem Header="Default zoom" InputGestureText="Ctrl+0" x:Name="defaultZoom" Click="defaultZoom_Click"/>
                 </MenuItem> 
             </MenuItem>
 
@@ -97,7 +97,11 @@
             <Button Content="Find" Width="50" DockPanel.Dock="Left" x:Name="findButton" Click="findButton_Click" ClickMode="Press"/>
            
             <Button Content="x" DockPanel.Dock="Right" HorizontalAlignment="Right" Padding="6 0 6 0" x:Name="closeFindPanelButton" Click="closeFindPanelButton_Click"/>
-            <CheckBox Content="Match Case" IsChecked="False" x:Name="matchedCaseCheckBox" Margin="0 0 0 0" DockPanel.Dock="Left" HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal" Margin="17 3 17 0">
+                <RadioButton GroupName="findGroup" x:Name="findNextRadio" IsChecked="True" Margin="0 0 5 0" Checked="findNextRadio_Checked">Next</RadioButton>
+                <RadioButton GroupName="findGroup" x:Name="findPreviousRadio" Checked="findPreviousRadio_Checked">Prev</RadioButton>
+            </StackPanel>
+            <CheckBox Content="Match Case" IsChecked="False" x:Name="matchedCaseCheckBox" Margin="0 3 0 0" DockPanel.Dock="Left" HorizontalAlignment="Left" />
             
         </DockPanel>
         <!--Dropdown Replace textbox-->
@@ -117,7 +121,7 @@
 
 
 
-        <TextBox x:Name="mainTextBox" FontSize="16" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextChanged="mainTextBox_TextChanged" SelectionChanged="mainTextBox_SelectionChanged" />
+        <TextBox x:Name="mainTextBox" FontSize="16" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"  TextChanged="mainTextBox_TextChanged" SelectionChanged="mainTextBox_SelectionChanged" />
     </DockPanel>
     
 </Window>

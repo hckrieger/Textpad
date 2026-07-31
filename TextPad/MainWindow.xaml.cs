@@ -60,6 +60,9 @@ namespace TextPad
 			InitializeComponent();
 			findIndex = 0;
 			findInstances = 0;
+
+			if (wordWrapMenuItem.IsChecked)
+				mainTextBox.TextWrapping = TextWrapping.Wrap;
 		}
 
 		
@@ -223,6 +226,10 @@ namespace TextPad
 		private void FindCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			findPanel.Visibility = Visibility.Visible;
+			if (!string.IsNullOrEmpty(mainTextBox.SelectedText))
+			{
+				findSearchBox.Text = mainTextBox.SelectedText;
+			}
 		}
 
 		private void closeFindPanelButton_Click(object sender, RoutedEventArgs e)
@@ -347,16 +354,22 @@ namespace TextPad
 
 		private void FindNext()
 		{
+
 			while (startingIndexOfFindText < mainTextBox.CaretIndex + mainTextBox.SelectedText.Length)
 			{
+				var caseCheckType = matchedCaseCheckBox.IsChecked == true ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 				if (startingIndexOfFindText == -1)
 				{
+					if (!mainTextBox.Text.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+						return;
 					mainTextBox.CaretIndex = 0;
 					findInstanceIndex = 0;
 					startingIndexOfFindText = 0;
+					startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex, caseCheckType);
+					break;
 
 				}
-				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex++);
+				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex++, caseCheckType);
 			}
 
 
@@ -366,24 +379,50 @@ namespace TextPad
 
 		private void FindPrevious()
 		{
-			int instanceCount = 0;
-			while (startingIndexOfFindText < mainTextBox.CaretIndex + mainTextBox.SelectedText.Length)
+			
+			 int searchLength = 0;
+			string scanText = string.Empty;
+
+
+			do
 			{
-				instanceCount++;
-				if (startingIndexOfFindText == -1)
+
+				int startIndex = mainTextBox.CaretIndex - ++searchLength;
+
+				if (startIndex < 0)
 				{
-					break;
+					searchLength = 0;
+
+					mainTextBox.CaretIndex = mainTextBox.Text.Length;
+
+					if (!mainTextBox.Text.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+						return;
+
+
+					continue;
 				}
-			}
+				scanText = mainTextBox.Text.Substring(startIndex, mainTextBox.CaretIndex - startIndex);
 
-				while (startingIndexOfFindText > mainTextBox.CaretIndex - mainTextBox.SelectedText.Length)
-			{
-
-				findInstanceIndex = (findInstanceIndex == 0) ? instanceCount : findInstanceIndex--;
-				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex);
 			}
+			while (!scanText.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
+
+
+
+			startingIndexOfFindText = mainTextBox.CaretIndex - searchLength;
 
 			SelectFindText();
+		}
+
+		private void findNextRadio_Checked(object sender, RoutedEventArgs e)
+		{
+			startingIndexOfFindText = 0;
+			findInstanceIndex = 0;
+		}
+
+		private void findPreviousRadio_Checked(object sender, RoutedEventArgs e)
+		{
+			startingIndexOfFindText = mainTextBox.CaretIndex; 
+			findInstanceIndex = mainTextBox.CaretIndex;
 		}
 
 		private void SelectFindText()
@@ -398,8 +437,16 @@ namespace TextPad
 		private void findButton_Click(object sender, RoutedEventArgs e)
 		{
 
+			
+			bool findNextIsChecked = findNextRadio.IsChecked != null && (bool)findNextRadio.IsChecked;
+			bool findPrevIsChecked = findPreviousRadio.IsChecked != null && (bool)findPreviousRadio.IsChecked;
 
-			FindNext();
+
+
+			if (findNextIsChecked)
+				FindNext();
+			else 
+				FindPrevious();
 			
 
 		}
