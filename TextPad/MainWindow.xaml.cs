@@ -27,7 +27,7 @@ namespace TextPad
 		int minFontSize = 4, maxFontSize = 48;
 		int startingIndexOfFindText = 0;
 		int findInstanceIndex = 0;
-
+		int numberOfInstancesReplaced = 0;
 		private string? CurrentFile
 		{
 			get => currentFile;
@@ -225,6 +225,7 @@ namespace TextPad
 
 		private void FindCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
+			replacePanel.Visibility = Visibility.Collapsed;
 			findPanel.Visibility = Visibility.Visible;
 			if (!string.IsNullOrEmpty(mainTextBox.SelectedText))
 			{
@@ -243,12 +244,48 @@ namespace TextPad
 
 		private void replaceButton_Click(object sender, RoutedEventArgs e)
 		{
+			if (string.IsNullOrEmpty(replaceBox.Text))
+				return;
 
+
+			if (string.IsNullOrEmpty(mainTextBox.SelectedText))
+			{
+				FindNext();
+			} else
+			{
+				ReplaceAction();
+			}
+		}
+
+		private void ReplaceAction()
+		{
+			if (!string.IsNullOrEmpty(mainTextBox.SelectedText))
+			{
+				mainTextBox.SelectedText = replaceBox.Text;
+				numberOfInstancesReplaced++;
+			} 
+				
+			FindNext();
 		}
 
 		private void replaceAllButton_Click(object sender, RoutedEventArgs e)
 		{
+			numberOfInstancesReplaced = 0;
+			if (string.IsNullOrEmpty(replaceBox.Text))
+				return;
 
+			while (mainTextBox.Text.Contains(findSearchBox.Text))
+			{
+				ReplaceAction();
+				
+			}
+
+			if (numberOfInstancesReplaced > 0)
+			{
+				MessageBox.Show($"{numberOfInstancesReplaced} instances of '{findSearchBox.Text}' replaced with '{replaceBox.Text}'");
+				numberOfInstancesReplaced = 0;
+			}
+				
 		}
 
 		private void findSearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -273,7 +310,12 @@ namespace TextPad
 
 		private void ReplaceCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-
+			findPanel.Visibility = Visibility.Visible;
+			replacePanel.Visibility = Visibility.Visible;
+			if (!string.IsNullOrEmpty(mainTextBox.SelectedText))
+			{
+				findSearchBox.Text = mainTextBox.SelectedText;
+			}
 		}
 
 
@@ -355,7 +397,7 @@ namespace TextPad
 		private void FindNext()
 		{
 
-			while (startingIndexOfFindText < mainTextBox.CaretIndex + mainTextBox.SelectedText.Length)
+			while (startingIndexOfFindText <= mainTextBox.CaretIndex + mainTextBox.SelectedText.Length)
 			{
 				var caseCheckType = matchedCaseCheckBox.IsChecked == true ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 				if (startingIndexOfFindText == -1)
