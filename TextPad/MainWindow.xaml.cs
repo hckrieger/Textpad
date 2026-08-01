@@ -222,7 +222,7 @@ namespace TextPad
 		}
 
 
-
+		
 		private void FindCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			replacePanel.Visibility = Visibility.Collapsed;
@@ -261,7 +261,7 @@ namespace TextPad
 		{
 			if (!string.IsNullOrEmpty(mainTextBox.SelectedText))
 			{
-				mainTextBox.SelectedText = replaceBox.Text;
+					mainTextBox.SelectedText = replaceBox.Text;
 				numberOfInstancesReplaced++;
 			} 
 				
@@ -271,19 +271,26 @@ namespace TextPad
 		private void replaceAllButton_Click(object sender, RoutedEventArgs e)
 		{
 			numberOfInstancesReplaced = 0;
-			if (string.IsNullOrEmpty(replaceBox.Text))
-				return;
 
-			while (mainTextBox.Text.Contains(findSearchBox.Text))
+
+			while (mainTextBox.Text.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true
+					? StringComparison.Ordinal
+					: StringComparison.OrdinalIgnoreCase))
 			{
 				ReplaceAction();
 				
 			}
 
+			if (string.IsNullOrEmpty(replaceBox.Text))
+				return;
+
+
 			if (numberOfInstancesReplaced > 0)
 			{
+				
 				MessageBox.Show($"{numberOfInstancesReplaced} instances of '{findSearchBox.Text}' replaced with '{replaceBox.Text}'");
 				numberOfInstancesReplaced = 0;
+				
 			}
 				
 		}
@@ -397,22 +404,29 @@ namespace TextPad
 		private void FindNext()
 		{
 
-			while (startingIndexOfFindText <= mainTextBox.CaretIndex + mainTextBox.SelectedText.Length)
-			{
-				var caseCheckType = matchedCaseCheckBox.IsChecked == true ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-				if (startingIndexOfFindText == -1)
-				{
-					if (!mainTextBox.Text.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-						return;
-					mainTextBox.CaretIndex = 0;
-					findInstanceIndex = 0;
-					startingIndexOfFindText = 0;
-					startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex, caseCheckType);
-					break;
+			if (string.IsNullOrEmpty(findSearchBox.Text))
+				return;
 
-				}
-				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, findInstanceIndex++, caseCheckType);
+
+			StringComparison comparison =
+				matchedCaseCheckBox.IsChecked == true
+					? StringComparison.Ordinal
+					: StringComparison.OrdinalIgnoreCase;
+
+			int searchStart = mainTextBox.SelectionStart + mainTextBox.SelectionLength;
+
+			startingIndexOfFindText = mainTextBox.Text.IndexOf(
+				findSearchBox.Text,
+				searchStart,
+				comparison);
+
+			if (startingIndexOfFindText == -1 && searchStart > 0)
+			{
+				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, 0, comparison);
 			}
+
+			if (startingIndexOfFindText == -1)
+				return;
 
 
 			SelectFindText();
@@ -437,7 +451,7 @@ namespace TextPad
 
 					mainTextBox.CaretIndex = mainTextBox.Text.Length;
 
-					if (!mainTextBox.Text.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+					if (!mainTextBox.Text.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase))
 						return;
 
 
@@ -446,7 +460,7 @@ namespace TextPad
 				scanText = mainTextBox.Text.Substring(startIndex, mainTextBox.CaretIndex - startIndex);
 
 			}
-			while (!scanText.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
+			while (!scanText.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
 
 
 
@@ -474,6 +488,7 @@ namespace TextPad
 			mainTextBox.Focus();
 			mainTextBox.SelectionStart = startingIndexOfFindText;
 			mainTextBox.SelectionLength = lengthOfFindText;
+
 		}
 
 		private void findButton_Click(object sender, RoutedEventArgs e)
