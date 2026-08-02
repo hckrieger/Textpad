@@ -290,7 +290,7 @@ namespace TextPad
 				
 				MessageBox.Show($"{numberOfInstancesReplaced} instances of '{findSearchBox.Text}' replaced with '{replaceBox.Text}'");
 				numberOfInstancesReplaced = 0;
-				
+				mainTextBox.SelectionLength = 0;
 			}
 				
 		}
@@ -407,22 +407,22 @@ namespace TextPad
 			if (string.IsNullOrEmpty(findSearchBox.Text))
 				return;
 
+			var stringComparison = matchedCaseCheckBox.IsChecked == true ?
+				StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
-			StringComparison comparison =
-				matchedCaseCheckBox.IsChecked == true
-					? StringComparison.Ordinal
-					: StringComparison.OrdinalIgnoreCase;
+			var startSelect = mainTextBox.SelectionStart + mainTextBox.SelectionLength;
 
-			int searchStart = mainTextBox.SelectionStart + mainTextBox.SelectionLength;
+			startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, startSelect, stringComparison);
 
-			startingIndexOfFindText = mainTextBox.Text.IndexOf(
-				findSearchBox.Text,
-				searchStart,
-				comparison);
-
-			if (startingIndexOfFindText == -1 && searchStart > 0)
+			// Wrap around to the beginning.
+			if (startingIndexOfFindText == -1 && startSelect > 0)
 			{
-				startingIndexOfFindText = mainTextBox.Text.IndexOf(findSearchBox.Text, 0, comparison);
+				startingIndexOfFindText = mainTextBox.Text.IndexOf(
+					findSearchBox.Text,
+					0,
+					stringComparison);
+
+				
 			}
 
 			if (startingIndexOfFindText == -1)
