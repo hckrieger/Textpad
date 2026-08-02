@@ -44,11 +44,16 @@
         <CommandBinding Command="IncreaseZoom"
                         x:Name="IncreaseZoomCmd"
                         CanExecute="IncreaseZoomCmd_CanExecute"
-                        Executed="IncreaseZoomCmd_Executed"/>
+                        Executed="IncreaseZoomCmd_Executed"
+                        />
         <CommandBinding Command="DecreaseZoom"
                         x:Name="DecreaseZoomCmd"
                         CanExecute="DecreaseZoomCmd_CanExecute"
                         Executed="DecreaseZoomCmd_Executed"/>
+        <CommandBinding Command="Zoom"
+                        x:Name="DefaultZoomCmd"
+                        CanExecute="DefaultZoomCmd_CanExecute"
+                        Executed="DefaultZoomCmd_Executed" />
         <CommandBinding Command="Print"
                         x:Name="PrintCmd"
                         CanExecute="PrintCmd_CanExecute"
@@ -85,7 +90,7 @@
                 <MenuItem Header="Zoom" x:Name="zoomMenuItem">
                     <MenuItem Header="Zoom in" InputGestureText="Ctrl+Plus" x:Name="zoomInMenuItem" Command="IncreaseZoom" />
                     <MenuItem Header="Zoom out" InputGestureText="Ctrl+Minus" x:Name="zoomOutMenuItem" Command="DecreaseZoom" />
-                    <MenuItem Header="Default zoom" InputGestureText="Ctrl+0" x:Name="defaultZoom" Click="defaultZoom_Click"/>
+                    <MenuItem Header="Default zoom" InputGestureText="Ctrl+0" x:Name="defaultZoom" Command="Zoom" />
                 </MenuItem> 
             </MenuItem>
 

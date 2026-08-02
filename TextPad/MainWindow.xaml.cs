@@ -63,6 +63,11 @@ namespace TextPad
 
 			if (wordWrapMenuItem.IsChecked)
 				mainTextBox.TextWrapping = TextWrapping.Wrap;
+
+			InputBindings.Add(new KeyBinding(NavigationCommands.Zoom, new KeyGesture(Key.D0, ModifierKeys.Control)));
+
+			InputBindings.Add(new KeyBinding(NavigationCommands.IncreaseZoom, new KeyGesture(Key.OemPlus, ModifierKeys.Control)));
+			InputBindings.Add(new KeyBinding(NavigationCommands.DecreaseZoom, new KeyGesture(Key.OemMinus, ModifierKeys.Control)));
 		}
 
 		
@@ -332,7 +337,7 @@ namespace TextPad
 
 		private void DecreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			mainTextBox.FontSize = Math.Max(minFontSize, mainTextBox.FontSize - 4);
+			mainTextBox.FontSize = Math.Max(minFontSize, --mainTextBox.FontSize);
 		}
 
 		private void DecreaseZoomCmd_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -348,10 +353,7 @@ namespace TextPad
 		//Make Command later
 		private void defaultZoom_Click(object sender, RoutedEventArgs e)
 		{
-			var fontSize = mainTextBox.FontSize;
-			var defaultFontSize = 16;
-			if (fontSize != defaultFontSize)
-				mainTextBox.FontSize = defaultFontSize;
+
 
 		}
 
@@ -398,7 +400,7 @@ namespace TextPad
 
 		private void IncreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			mainTextBox.FontSize = Math.Min(mainTextBox.FontSize + 4, maxFontSize);
+			mainTextBox.FontSize = Math.Min(++mainTextBox.FontSize, maxFontSize);
 		}
 
 		private void FindNext()
@@ -479,6 +481,19 @@ namespace TextPad
 		{
 			startingIndexOfFindText = mainTextBox.CaretIndex; 
 			findInstanceIndex = mainTextBox.CaretIndex;
+		}
+
+		int defaultFontSize = 16;
+		private void DefaultZoomCmd_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			var fontSize = mainTextBox.FontSize;
+			if (fontSize != defaultFontSize)
+				e.CanExecute = true;
+		}
+
+		private void DefaultZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			mainTextBox.FontSize = defaultFontSize;
 		}
 
 		private void SelectFindText()
