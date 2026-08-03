@@ -226,16 +226,23 @@ namespace TextPad
 			}
 		}
 
-
+		private void FindFocus()
+		{
+			findSearchBox.Focus();
+			if (!string.IsNullOrEmpty(mainTextBox.SelectedText))
+			{
+				findSearchBox.Text = mainTextBox.SelectedText;
+				findSearchBox.SelectionStart = 0;
+				findSearchBox.SelectionLength = findSearchBox.Text.Length;
+			}
+		}
 		
 		private void FindCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			replacePanel.Visibility = Visibility.Collapsed;
 			findPanel.Visibility = Visibility.Visible;
-			if (!string.IsNullOrEmpty(mainTextBox.SelectedText))
-			{
-				findSearchBox.Text = mainTextBox.SelectedText;
-			}
+			FindFocus();
+			
 		}
 
 		private void closeFindPanelButton_Click(object sender, RoutedEventArgs e)
@@ -249,6 +256,7 @@ namespace TextPad
 
 		private void replaceButton_Click(object sender, RoutedEventArgs e)
 		{
+
 			if (string.IsNullOrEmpty(replaceBox.Text))
 				return;
 
@@ -300,10 +308,7 @@ namespace TextPad
 				
 		}
 
-		private void findSearchBox_TextChanged(object sender, TextChangedEventArgs e)
-		{
-			
-		}
+		
 
 		private void dropDownForReplace_Click(object sender, RoutedEventArgs e)
 		{
@@ -324,10 +329,7 @@ namespace TextPad
 		{
 			findPanel.Visibility = Visibility.Visible;
 			replacePanel.Visibility = Visibility.Visible;
-			if (!string.IsNullOrEmpty(mainTextBox.SelectedText))
-			{
-				findSearchBox.Text = mainTextBox.SelectedText;
-			}
+			FindFocus();
 		}
 
 
@@ -441,9 +443,13 @@ namespace TextPad
 			 int searchLength = 0;
 			string scanText = string.Empty;
 
+			if (findSearchBox.Text.Length == 0)
+				return;
 
 			do
 			{
+
+					
 
 				int startIndex = mainTextBox.CaretIndex - ++searchLength;
 
@@ -454,7 +460,10 @@ namespace TextPad
 					mainTextBox.CaretIndex = mainTextBox.Text.Length;
 
 					if (!mainTextBox.Text.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase))
+					{
 						return;
+					}
+						
 
 
 					continue;
@@ -465,8 +474,6 @@ namespace TextPad
 			while (!scanText.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
 
 
-
-			startingIndexOfFindText = mainTextBox.CaretIndex - searchLength;
 
 			SelectFindText();
 		}
@@ -503,6 +510,7 @@ namespace TextPad
 			mainTextBox.Focus();
 			mainTextBox.SelectionStart = startingIndexOfFindText;
 			mainTextBox.SelectionLength = lengthOfFindText;
+
 
 		}
 
