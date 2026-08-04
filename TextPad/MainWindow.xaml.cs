@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Printing;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -24,10 +26,12 @@ namespace TextPad
 	{
 		string? currentFile;
 		bool justReplaced = false;
-		int minFontSize = 4, maxFontSize = 48;
+		int minFontSize = 4, maxFontSize = 64;
 		int startingIndexOfFindText = 0;
 		int findInstanceIndex = 0;
 		int numberOfInstancesReplaced = 0;
+
+		PersistantData? persistantData;
 		private string? CurrentFile
 		{
 			get => currentFile;
@@ -61,15 +65,62 @@ namespace TextPad
 			findIndex = 0;
 			findInstances = 0;
 
-			if (wordWrapMenuItem.IsChecked)
-				mainTextBox.TextWrapping = TextWrapping.Wrap;
+
+
 
 			InputBindings.Add(new KeyBinding(NavigationCommands.Zoom, new KeyGesture(Key.D0, ModifierKeys.Control)));
 
 			InputBindings.Add(new KeyBinding(NavigationCommands.IncreaseZoom, new KeyGesture(Key.OemPlus, ModifierKeys.Control)));
 			InputBindings.Add(new KeyBinding(NavigationCommands.DecreaseZoom, new KeyGesture(Key.OemMinus, ModifierKeys.Control)));
+
+
+			if (!File.Exists("persistantData.json"))
+			{
+				persistantData = new PersistantData();
+				SerializeJson();
+			}
+			else
+			{
+				var json = File.ReadAllText("persistantData.json");
+
+
+				persistantData = JsonSerializer.Deserialize<PersistantData>(json);
+			}
+			
+
+
+			if (persistantData != null)
+			{
+				mainTextBox.TextWrapping = persistantData.WordWrap;
+
+				if (persistantData.WordWrap == TextWrapping.Wrap)
+				{
+					wordWrapMenuItem.IsChecked = true;
+				}
+				else
+				{
+					wordWrapMenuItem.IsChecked = false;
+				}
+
+				mainTextBox.FontSize = persistantData.FontSize;
+				fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
+			}
+				
+
+			
+
+
 		}
 
+
+		private void SerializeJson()
+		{
+
+			
+			var json = JsonSerializer.Serialize(persistantData, new JsonSerializerOptions { WriteIndented = true });
+			File.WriteAllText("persistantData.json", json);
+
+		}
 		
 
 		private void OpenCmd_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -119,8 +170,13 @@ namespace TextPad
 		{
 			MenuItem? item = sender as MenuItem;
 
+			
+
 			mainTextBox.TextWrapping = (!wordWrapMenuItem.IsChecked) ? TextWrapping.Wrap : TextWrapping.NoWrap;
 
+			persistantData?.WordWrap = mainTextBox.TextWrapping; 
+
+			SerializeJson();
 
 			item?.IsChecked = !item.IsChecked;
 
@@ -339,7 +395,10 @@ namespace TextPad
 
 		private void DecreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			mainTextBox.FontSize = Math.Max(minFontSize, --mainTextBox.FontSize);
+			persistantData.FontSize = Math.Max(minFontSize, --persistantData.FontSize);
+			mainTextBox.FontSize = persistantData.FontSize;
+			fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
+			SerializeJson();
 		}
 
 		private void DecreaseZoomCmd_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -402,7 +461,10 @@ namespace TextPad
 
 		private void IncreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			mainTextBox.FontSize = Math.Min(++mainTextBox.FontSize, maxFontSize);
+			persistantData.FontSize = Math.Min(++persistantData.FontSize, maxFontSize);
+			mainTextBox.FontSize = persistantData.FontSize;
+			fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
+			SerializeJson();
 		}
 
 		private void FindNext()
@@ -500,7 +562,10 @@ namespace TextPad
 
 		private void DefaultZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			mainTextBox.FontSize = defaultFontSize;
+			persistantData.FontSize = defaultFontSize;
+			mainTextBox.FontSize = persistantData.FontSize;
+			fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
+			SerializeJson();
 		}
 
 		private void SelectFindText()

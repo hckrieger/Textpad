@@ -122,6 +122,8 @@
             <Label x:Name="linesAndColumnsLabel" Content="Ln 1, Col 1" Height="27"/>
             <Separator />
             <Label x:Name="characterCountLabel" Content="0 characters" />
+            <Separator />
+            <Label x:Name="fontSizePercentageLabel" />
         </StatusBar>
 
 
