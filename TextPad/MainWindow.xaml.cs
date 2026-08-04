@@ -418,7 +418,8 @@ namespace TextPad
 
 		}
 
-		private void mainTextBox_TextChanged(object sender, TextChangedEventArgs e)
+
+		private void ChangeLineAndRowCount()
 		{
 			string textBeforeCaret = mainTextBox.Text[..mainTextBox.CaretIndex];
 
@@ -428,6 +429,11 @@ namespace TextPad
 
 			linesAndColumnsLabel.Content = $"Ln {line + 1}, Col {column + 1}";
 			characterCountLabel.Content = $"{mainTextBox.Text.Length} Characters";
+		}
+
+		private void mainTextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			ChangeLineAndRowCount();
 		}
 
 		private void PrintCmd_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -457,6 +463,8 @@ namespace TextPad
 		{
 			findInstanceIndex = 0;
 			startingIndexOfFindText = 0;
+
+			ChangeLineAndRowCount();
 		}
 
 		private void IncreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
