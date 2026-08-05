@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -17,7 +18,7 @@ namespace TextPad
 		public double FontSize { get; set; } = 16;
 
 		[JsonPropertyName("recent files")]
-		public Queue<string> RecentFiles { get; set; } = new Queue<string>();
+		public ObservableCollection<string> RecentFiles { get; set; } = new ObservableCollection<string>();
 
 	}
 }
