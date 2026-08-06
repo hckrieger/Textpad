@@ -31,6 +31,7 @@ namespace TextPad
 		int startingIndexOfFindText = 0;
 		int findInstanceIndex = 0;
 		int numberOfInstancesReplaced = 0;
+		
 		JumpList jumpList = new JumpList();
 		List<JumpTask> jumpTasks = new List<JumpTask>();
 
@@ -137,7 +138,7 @@ namespace TextPad
 			var fileName = string.Empty;
 			if (openFileDialog.ShowDialog() == true)
 			{
-
+				
 				fileName = openFileDialog.FileName;
 				CurrentFile = fileName;
 				
@@ -515,41 +516,40 @@ namespace TextPad
 
 		private void FindPrevious()
 		{
-			
-			 int searchLength = 0;
-			string scanText = string.Empty;
-
-			if (findSearchBox.Text.Length == 0)
+			if (string.IsNullOrEmpty(findSearchBox.Text))
 				return;
 
-			do
+			StringComparison comparison =
+				matchedCaseCheckBox.IsChecked == true
+					? StringComparison.Ordinal
+					: StringComparison.OrdinalIgnoreCase;
+
+			// Search immediately before the current selection.
+			int searchStart = mainTextBox.SelectionStart - 1;
+
+			if (searchStart >= 0)
 			{
-
-					
-
-				int startIndex = mainTextBox.CaretIndex - ++searchLength;
-
-				if (startIndex < 0)
-				{
-					searchLength = 0;
-
-					mainTextBox.CaretIndex = mainTextBox.Text.Length;
-
-					if (!mainTextBox.Text.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase))
-					{
-						return;
-					}
-						
-
-
-					continue;
-				}
-				scanText = mainTextBox.Text.Substring(startIndex, mainTextBox.CaretIndex - startIndex);
-
+				startingIndexOfFindText = mainTextBox.Text.LastIndexOf(
+					findSearchBox.Text,
+					searchStart,
+					comparison);
 			}
-			while (!scanText.Contains(findSearchBox.Text, matchedCaseCheckBox.IsChecked == true ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
+			else
+			{
+				startingIndexOfFindText = -1;
+			}
 
+			// Wrap around to the end.
+			if (startingIndexOfFindText == -1 && mainTextBox.Text.Length > 0)
+			{
+				startingIndexOfFindText = mainTextBox.Text.LastIndexOf(
+					findSearchBox.Text,
+					mainTextBox.Text.Length - 1,
+					comparison);
+			}
 
+			if (startingIndexOfFindText == -1)
+				return;
 
 			SelectFindText();
 		}
