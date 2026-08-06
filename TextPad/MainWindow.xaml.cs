@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Shell;
 using System.Windows.Xps;
 using System.Windows.Xps.Packaging;
 
@@ -30,6 +31,8 @@ namespace TextPad
 		int startingIndexOfFindText = 0;
 		int findInstanceIndex = 0;
 		int numberOfInstancesReplaced = 0;
+		JumpList jumpList = new JumpList();
+		List<JumpTask> jumpTasks = new List<JumpTask>();
 
 		PersistantData? persistantData;
 		private string? CurrentFile
@@ -101,7 +104,7 @@ namespace TextPad
 				{
 					wordWrapMenuItem.IsChecked = false;
 				}
-
+				DisplayTasks();
 				mainTextBox.FontSize = persistantData.FontSize;
 				fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
 			}
@@ -137,9 +140,12 @@ namespace TextPad
 
 				fileName = openFileDialog.FileName;
 				CurrentFile = fileName;
+				
 				var text = File.ReadAllText(fileName);
 
 				mainTextBox.Text = text;
+
+				AddTask();
 			}
 
 		}
@@ -604,6 +610,57 @@ namespace TextPad
 
 		}
 
+		private void AddTask()
+		{
+			
+			JumpTask jumpTask = new JumpTask();
 
+			
+			jumpTask.ApplicationPath = currentFile;
+			jumpTask.Title = Path.GetFileName(currentFile);
+			jumpTask.Description = currentFile;
+
+
+
+
+
+			if (jumpTasks.Count(m => m.Title == jumpTask.Title) == 0)
+			{
+				jumpTasks.Insert(0, jumpTask);
+			} else
+			{
+				var index = jumpTasks.FindIndex(m => m.Title == jumpTask.Title);
+				var selectedTask = jumpTasks[index];
+				jumpTasks.RemoveAt(index);
+				jumpTasks.Insert(0, jumpTask);
+				
+			}
+
+			jumpList.JumpItems.Clear();
+
+			
+
+			DisplayTasks();
+
+			persistantData?.RecentFiles = jumpTasks;
+
+			SerializeJson();
+		}
+
+		private void DisplayTasks()
+		{
+			jumpList = JumpList.GetJumpList(App.Current);
+
+			jumpList.JumpItems.Clear();
+
+			jumpTasks = persistantData?.RecentFiles ?? new List<JumpTask>();
+			foreach (JumpTask jump in jumpTasks)
+			{
+				jumpList.JumpItems.Add(jump);
+			}
+			jumpList.JumpItems.Take(12);
+			jumpList.Apply();	
+		}
+		
 	}
 }

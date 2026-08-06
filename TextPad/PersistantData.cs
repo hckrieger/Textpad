@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Windows;
+using System.Windows.Shell;
 
 namespace TextPad
 {
@@ -18,7 +19,7 @@ namespace TextPad
 		public double FontSize { get; set; } = 16;
 
 		[JsonPropertyName("recent files")]
-		public ObservableCollection<string> RecentFiles { get; set; } = new ObservableCollection<string>();
+		public List<JumpTask> RecentFiles { get; set; } = new List<JumpTask>();
 
 	}
 }

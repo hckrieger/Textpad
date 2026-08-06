@@ -9,6 +9,7 @@ namespace TextPad
 	/// </summary>
 	public partial class App : Application
 	{
+
 	}
 
 }
