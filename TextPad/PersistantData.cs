@@ -21,5 +21,11 @@ namespace TextPad
 		[JsonPropertyName("recent files")]
 		public List<JumpTask> RecentFiles { get; set; } = new List<JumpTask>();
 
+		[JsonPropertyName("window size")]
+		public Size WindowSize { get; set; }
+
+		[JsonPropertyName("window position")]
+		public Point WindowPosition { get; set; }
+
 	}
 }

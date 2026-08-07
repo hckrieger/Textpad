@@ -18,6 +18,7 @@ using System.Windows.Shell;
 using System.Windows.Xps;
 using System.Windows.Xps.Packaging;
 
+
 namespace TextPad
 {
 	/// <summary>
@@ -90,11 +91,15 @@ namespace TextPad
 
 				persistantData = JsonSerializer.Deserialize<PersistantData>(json);
 			}
-			
 
+
+
+			
 
 			if (persistantData != null)
 			{
+				
+
 				mainTextBox.TextWrapping = persistantData.WordWrap;
 
 				if (persistantData.WordWrap == TextWrapping.Wrap)
@@ -108,6 +113,12 @@ namespace TextPad
 				DisplayTasks();
 				mainTextBox.FontSize = persistantData.FontSize;
 				fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
+
+				this.Width = persistantData.WindowSize.Width;
+				this.Height = persistantData.WindowSize.Height;
+
+				this.Left = persistantData.WindowPosition.X;
+				this.Top = persistantData.WindowPosition.Y;
 			}
 				
 
@@ -610,15 +621,30 @@ namespace TextPad
 
 		}
 
+		private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+		{
+			
+			persistantData?.WindowSize = new Size(e.NewSize.Width, e.NewSize.Height);
+			SerializeJson();
+			
+
+		}
+
+		private void Window_LocationChanged(object sender, EventArgs e)
+		{
+			persistantData?.WindowPosition = new Point(this.Left, this.Top);
+			SerializeJson();
+		}
+
 		private void AddTask()
 		{
 			
 			JumpTask jumpTask = new JumpTask();
 
 			
-			jumpTask.ApplicationPath = currentFile;
 			jumpTask.Title = Path.GetFileName(currentFile);
 			jumpTask.Description = currentFile;
+			jumpTask.ApplicationPath = currentFile;
 
 
 
