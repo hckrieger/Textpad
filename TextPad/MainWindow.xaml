@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TextPad"
         mc:Ignorable="d"
         Closing="Window_Closing"
-        Title="Textpad" Height="700" Width="500" SizeChanged="Window_SizeChanged" LocationChanged="Window_LocationChanged">
+        Title="Textpad" Height="500" Width="700" SizeChanged="Window_SizeChanged" LocationChanged="Window_LocationChanged">
     <Window.CommandBindings>
         <CommandBinding Command="Open"
                         x:Name="OpenCmd"

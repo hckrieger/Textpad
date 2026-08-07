@@ -114,11 +114,11 @@ namespace TextPad
 				mainTextBox.FontSize = persistantData.FontSize;
 				fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
 
-				this.Width = persistantData.WindowSize.Width;
-				this.Height = persistantData.WindowSize.Height;
+				this.Width = (persistantData.WindowSize.Width == 0) ? Width : persistantData.WindowSize.Width;
+				this.Height = (persistantData.WindowSize.Height == 0) ? Height : persistantData.WindowSize.Height;
 
-				this.Left = persistantData.WindowPosition.X;
-				this.Top = persistantData.WindowPosition.Y;
+				this.Left = (persistantData.WindowPosition.X == 0) ? Left : persistantData.WindowPosition.X;
+				this.Top = (persistantData.WindowPosition.Y == 0) ? Top : persistantData.WindowPosition.Y;
 			}
 				
 
