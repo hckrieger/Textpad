@@ -380,6 +380,8 @@ namespace TextPad
 			{
 				CurrentFile = saveFileDialog.FileName;
 				File.WriteAllText(currentFile, mainTextBox.Text);
+
+				AdjustRecentMenuItems(CurrentFile);
 			}
 		}
 
