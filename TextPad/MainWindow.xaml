@@ -63,7 +63,7 @@
     </Window.CommandBindings>
 
     <DockPanel>
-        <Menu DockPanel.Dock="Top" FontSize="16" Background="LightGray" BorderBrush="Black">
+        <Menu DockPanel.Dock="Top" FontSize="16" Background="LightGray" BorderBrush="Black" x:Name="mainMenu">
             <MenuItem Header="_File" Padding="5">                                 
                 <MenuItem Header="_New..." Command="New"/>
                 <MenuItem Header="_Open..." Command="Open"/>

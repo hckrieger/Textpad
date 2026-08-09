@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Shell;
 
 namespace TextPad
@@ -14,7 +15,7 @@ namespace TextPad
 		public double FontSize { get; set; } = 16;
 
 		[JsonPropertyName("recent files")]
-		public List<JumpTask> RecentFiles { get; set; } = new List<JumpTask>();
+		public List<string> RecentFiles { get; set; } = new List<string>();
 
 		[JsonPropertyName("window size")]
 		public Size WindowSize { get; set; }

@@ -6,6 +6,7 @@ using System.Printing;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading.Tasks.Dataflow;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -37,7 +38,9 @@ namespace TextPad
 		List<JumpTask> jumpTasks = new List<JumpTask>();
 
 		PersistantData? persistantData;
-		private string? CurrentFile
+
+		private MenuItem? recentMenuItem;
+		public string? CurrentFile
 		{
 			get => currentFile;
 			set
@@ -110,7 +113,7 @@ namespace TextPad
 				{
 					wordWrapMenuItem.IsChecked = false;
 				}
-				DisplayTasks();
+				//DisplayTasks();
 				mainTextBox.FontSize = persistantData.FontSize;
 				fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
 
@@ -119,11 +122,39 @@ namespace TextPad
 
 				this.Left = (persistantData.WindowPosition.X == 0) ? Left : persistantData.WindowPosition.X;
 				this.Top = (persistantData.WindowPosition.Y == 0) ? Top : persistantData.WindowPosition.Y;
+
+				if (persistantData.RecentFiles != null && persistantData.RecentFiles.Count > 0 && recentMenuItem == null)
+				{
+
+					recentMenuItem = new MenuItem() { Header = "Recent" };
+
+		
+					
+					mainMenu.Items.Add(recentMenuItem);
+					
+					if (recentMenuItem != null)
+					{
+						foreach (var recentFile in persistantData.RecentFiles)
+						{
+							MenuItem newFilemenuItem = new MenuItem()
+							{
+								Header = Path.GetFileName(recentFile),
+								Command = new OpenSpecificFileCommand(this),
+								CommandParameter = recentFile
+							};
+
+							AddRightClickDeleteHandler(newFilemenuItem, recentFile);
+
+							recentMenuItem.Items.Add(newFilemenuItem);
+						}
+
+					}
+
+				}
+
+
+
 			}
-				
-
-			
-
 
 		}
 
@@ -157,9 +188,92 @@ namespace TextPad
 
 				mainTextBox.Text = text;
 
-				AddTask();
+				AdjustRecentMenuItems(fileName);
+
+
+
+				//AddTask();
 			}
 
+		}
+
+		public void AddRightClickDeleteHandler(MenuItem menuItem, string fileName)
+		{
+			menuItem.PreviewMouseRightButtonDown += (s, e) =>
+			{
+				if (MessageBox.Show(
+					$"Do you want to clear '{fileName}' from recent history? \nThis will not delete the file, only remove from history",
+					"Remove from Recent History",
+					MessageBoxButton.YesNo,
+					MessageBoxImage.Question) == MessageBoxResult.Yes)
+				{
+					persistantData?.RecentFiles.Remove(fileName);
+					recentMenuItem?.Items.Remove(menuItem);
+					SerializeJson();
+				}
+				if (recentMenuItem?.Items.Count <= 0)
+				{
+					mainMenu.Items.Remove(recentMenuItem);
+					recentMenuItem = null;
+				}
+			};
+		}
+
+		public void AdjustRecentMenuItems(string fileName)
+		{
+			if (persistantData != null)
+			{
+				if (persistantData.RecentFiles.Count == 0)
+				{
+					recentMenuItem = new MenuItem() { Header = "Recent" };
+					mainMenu.Items.Add(recentMenuItem);
+				}
+
+
+
+				if (!persistantData.RecentFiles.Contains(fileName))
+				{
+					persistantData.RecentFiles.Insert(0, fileName);
+
+					MenuItem? newFileMenuItem = new MenuItem()
+					{
+						Header = Path.GetFileName(fileName),
+						Command = new OpenSpecificFileCommand(this),
+						CommandParameter = fileName
+					};
+					recentMenuItem?.Items.Insert(0, newFileMenuItem);
+
+					AddRightClickDeleteHandler(newFileMenuItem, fileName);
+				}
+				else
+				{
+					persistantData.RecentFiles.Remove(fileName);
+					persistantData.RecentFiles.Insert(0, fileName);
+
+					MenuItem? existingMenuItem = recentMenuItem?.Items.OfType<MenuItem>().FirstOrDefault(item => item.Header.ToString() == Path.GetFileName(fileName));
+					if (existingMenuItem != null)
+					{
+						recentMenuItem?.Items.RemoveAt(recentMenuItem.Items.IndexOf(existingMenuItem));
+						recentMenuItem?.Items.Insert(0, existingMenuItem);
+
+						AddRightClickDeleteHandler(existingMenuItem, fileName);
+					}
+				}
+
+				if (persistantData.RecentFiles.Count > 7)
+				{
+		
+					persistantData.RecentFiles.RemoveAt(persistantData.RecentFiles.Count - 1);
+					recentMenuItem?.Items.RemoveAt(recentMenuItem.Items.Count - 1);
+
+		
+				}
+
+
+
+
+				SerializeJson();
+			}
 		}
 
 		private void OpenCmd_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -180,6 +294,13 @@ namespace TextPad
 		{
 
 			bool condition1 = string.IsNullOrEmpty(currentFile) && currentFile == null;
+
+			if (!File.Exists(currentFile))
+			{
+				e.CanExecute = false;
+				return;
+			}
+
 			bool condition2 = currentFile != null && mainTextBox.Text == File.ReadAllText(currentFile);
 			e.CanExecute = (condition1 || condition2) ? false : true;
 		}
@@ -636,57 +757,57 @@ namespace TextPad
 			SerializeJson();
 		}
 
-		private void AddTask()
-		{
+		//private void AddTask()
+		//{
 			
-			JumpTask jumpTask = new JumpTask();
+		//	JumpTask jumpTask = new JumpTask();
 
 			
-			jumpTask.Title = Path.GetFileName(currentFile);
-			jumpTask.Description = currentFile;
-			jumpTask.ApplicationPath = currentFile;
+		//	jumpTask.Title = Path.GetFileName(currentFile);
+		//	jumpTask.Description = currentFile;
+		//	jumpTask.ApplicationPath = currentFile;
 
 
 
 
 
-			if (jumpTasks.Count(m => m.Title == jumpTask.Title) == 0)
-			{
-				jumpTasks.Insert(0, jumpTask);
-			} else
-			{
-				var index = jumpTasks.FindIndex(m => m.Title == jumpTask.Title);
-				var selectedTask = jumpTasks[index];
-				jumpTasks.RemoveAt(index);
-				jumpTasks.Insert(0, jumpTask);
+		//	if (jumpTasks.Count(m => m.Title == jumpTask.Title) == 0)
+		//	{
+		//		jumpTasks.Insert(0, jumpTask);
+		//	} else
+		//	{
+		//		var index = jumpTasks.FindIndex(m => m.Title == jumpTask.Title);
+		//		var selectedTask = jumpTasks[index];
+		//		jumpTasks.RemoveAt(index);
+		//		jumpTasks.Insert(0, jumpTask);
 				
-			}
+		//	}
 
-			jumpList.JumpItems.Clear();
+		//	jumpList.JumpItems.Clear();
 
 			
 
-			DisplayTasks();
+		//	DisplayTasks();
 
-			persistantData?.RecentFiles = jumpTasks;
+		//	persistantData?.RecentFiles = jumpTasks;
 
-			SerializeJson();
-		}
+		//	SerializeJson();
+		//}
 
-		private void DisplayTasks()
-		{
-			jumpList = JumpList.GetJumpList(App.Current);
+		//private void DisplayTasks()
+		//{
+		//	jumpList = JumpList.GetJumpList(App.Current);
 
-			jumpList.JumpItems.Clear();
+		//	jumpList.JumpItems.Clear();
 
-			jumpTasks = persistantData?.RecentFiles ?? new List<JumpTask>();
-			foreach (JumpTask jump in jumpTasks)
-			{
-				jumpList.JumpItems.Add(jump);
-			}
-			jumpList.JumpItems.Take(12);
-			jumpList.Apply();	
-		}
+		//	jumpTasks = persistantData?.RecentFiles ?? new List<JumpTask>();
+		//	foreach (JumpTask jump in jumpTasks)
+		//	{
+		//		jumpList.JumpItems.Add(jump);
+		//	}
+		//	jumpList.JumpItems.Take(12);
+		//	jumpList.Apply();	
+		//}
 		
 	}
 }
