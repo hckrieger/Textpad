@@ -40,6 +40,7 @@ namespace TextPad
 		PersistantData? persistantData;
 
 		private MenuItem? recentMenuItem;
+		string lastOpenedDirectory;
 		public string? CurrentFile
 		{
 			get => currentFile;
@@ -68,7 +69,7 @@ namespace TextPad
 	
 		public MainWindow()
 		{
-			
+			lastOpenedDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 			InitializeComponent();
 			findIndex = 0;
 			findInstances = 0;
@@ -171,17 +172,18 @@ namespace TextPad
 
 		private void OpenCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			string defaultDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
 			OpenFileDialog openFileDialog = new OpenFileDialog()
 			{
 				Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
-				InitialDirectory = defaultDirectory
+				InitialDirectory = lastOpenedDirectory
 			};
 			var fileName = string.Empty;
 			if (openFileDialog.ShowDialog() == true)
 			{
 				
 				fileName = openFileDialog.FileName;
+				lastOpenedDirectory = Path.GetDirectoryName(fileName);
 				CurrentFile = fileName;
 				
 				var text = File.ReadAllText(fileName);
@@ -201,6 +203,7 @@ namespace TextPad
 		{
 			menuItem.PreviewMouseRightButtonDown += (s, e) =>
 			{
+				e.Handled = true;
 				if (MessageBox.Show(
 					$"Do you want to clear '{fileName}' from recent history? \nThis will not delete the file, only remove from history",
 					"Remove from Recent History",
