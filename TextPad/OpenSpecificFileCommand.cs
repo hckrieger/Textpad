@@ -13,6 +13,7 @@ namespace TextPad
 		public OpenSpecificFileCommand(MainWindow mainWindow)
 		{
 			this.mainWindow = mainWindow;
+			CanExecuteChanged += (sender, e) => { };
 		}
 
 		public event EventHandler? CanExecuteChanged;

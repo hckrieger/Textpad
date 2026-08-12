@@ -28,19 +28,17 @@ namespace TextPad
 	public partial class MainWindow : Window
 	{
 		string? currentFile;
-		bool justReplaced = false;
 		int minFontSize = 4, maxFontSize = 64;
 		int startingIndexOfFindText = 0;
 		int findInstanceIndex = 0;
 		int numberOfInstancesReplaced = 0;
 		
-		JumpList jumpList = new JumpList();
-		List<JumpTask> jumpTasks = new List<JumpTask>();
 
 		PersistantData? persistantData;
 
 		private MenuItem? recentMenuItem;
-		string lastOpenedDirectory;
+		string? lastOpenedDirectory;
+
 		public string? CurrentFile
 		{
 			get => currentFile;
@@ -75,14 +73,14 @@ namespace TextPad
 			findInstances = 0;
 
 
-
+			// Add keyboard shortcuts for zooming in and out
 
 			InputBindings.Add(new KeyBinding(NavigationCommands.Zoom, new KeyGesture(Key.D0, ModifierKeys.Control)));
 
 			InputBindings.Add(new KeyBinding(NavigationCommands.IncreaseZoom, new KeyGesture(Key.OemPlus, ModifierKeys.Control)));
 			InputBindings.Add(new KeyBinding(NavigationCommands.DecreaseZoom, new KeyGesture(Key.OemMinus, ModifierKeys.Control)));
 
-
+			// Add keyboard shortcuts for find and replace
 			if (!File.Exists("persistantData.json"))
 			{
 				persistantData = new PersistantData();
@@ -98,8 +96,8 @@ namespace TextPad
 
 
 
-			
 
+			// Set persited values for word wrap, font size, window size and position, and recent files
 			if (persistantData != null)
 			{
 				
@@ -132,6 +130,7 @@ namespace TextPad
 		
 					
 					mainMenu.Items.Add(recentMenuItem);
+					
 					
 					if (recentMenuItem != null)
 					{
@@ -172,13 +171,13 @@ namespace TextPad
 
 		private void OpenCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-
+			// Open a file dialog to select a text file to open
 			OpenFileDialog openFileDialog = new OpenFileDialog()
 			{
 				Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
 				InitialDirectory = lastOpenedDirectory
 			};
-			var fileName = string.Empty;
+			string fileName = string.Empty;
 			if (openFileDialog.ShowDialog() == true)
 			{
 				
@@ -191,14 +190,11 @@ namespace TextPad
 				mainTextBox.Text = text;
 
 				AdjustRecentMenuItems(fileName);
-
-
-
-				//AddTask();
 			}
 
 		}
 
+		// Add a right-click event handler to the recent menu item to remove it from the recent files list
 		public void AddRightClickDeleteHandler(MenuItem menuItem, string fileName)
 		{
 			menuItem.PreviewMouseRightButtonDown += (s, e) =>
@@ -222,6 +218,7 @@ namespace TextPad
 			};
 		}
 
+		// Adjust the recent menu items based on the file name opened
 		public void AdjustRecentMenuItems(string fileName)
 		{
 			if (persistantData != null)
@@ -233,7 +230,7 @@ namespace TextPad
 				}
 
 
-
+				
 				if (!persistantData.RecentFiles.Contains(fileName))
 				{
 					persistantData.RecentFiles.Insert(0, fileName);
@@ -263,6 +260,7 @@ namespace TextPad
 					}
 				}
 
+				// Remove the last item if the recent files list exceeds 7 items
 				if (persistantData.RecentFiles.Count > 7)
 				{
 		
@@ -287,6 +285,8 @@ namespace TextPad
 		private void SaveCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			
+			if (string.IsNullOrEmpty(currentFile))
+				return;
 			
 			File.WriteAllText(currentFile, mainTextBox.Text);
 			
@@ -327,9 +327,10 @@ namespace TextPad
 		}
 
 
-
+		// Handle the window closing event to prompt the user to save changes if necessary
 		private void Window_Closing(object sender, CancelEventArgs e)
 		{
+			// Check if the current file is null and the text box has text, or if the current file is not null and the text box text is different from the file content
 			if ((currentFile == null && mainTextBox.Text.Length > 0) || currentFile != null && mainTextBox.Text != File.ReadAllText(currentFile))
 			{
 				MessageBoxResult result = MessageBox.Show("Do you want to save changes?", "TextPad", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
@@ -350,7 +351,6 @@ namespace TextPad
 				{
 					e.Cancel = true;
 				}
-				//Close();
 			}
 		}
 
@@ -365,6 +365,7 @@ namespace TextPad
 			e.CanExecute = (saveCondition) ? true : false;
 		}
 
+		// Save file process for Save As command
 		private void SaveFileProcess()
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog()
@@ -382,7 +383,9 @@ namespace TextPad
 			if (saveFileDialog.ShowDialog() == true)
 			{
 				CurrentFile = saveFileDialog.FileName;
-				File.WriteAllText(currentFile, mainTextBox.Text);
+
+				if (currentFile != null)
+					File.WriteAllText(currentFile, mainTextBox.Text);
 
 				AdjustRecentMenuItems(CurrentFile);
 			}
@@ -426,6 +429,7 @@ namespace TextPad
 			}
 		}
 
+	
 		private void FindFocus()
 		{
 			findSearchBox.Focus();
@@ -453,7 +457,7 @@ namespace TextPad
 		}
 
 
-
+		// Handle the replace button click event to replace the selected text with the text in the replace box
 		private void replaceButton_Click(object sender, RoutedEventArgs e)
 		{
 
@@ -481,6 +485,7 @@ namespace TextPad
 			FindNext();
 		}
 
+		// Handle the replace all button click event to replace all instances of the text in the find box with the text in the replace box
 		private void replaceAllButton_Click(object sender, RoutedEventArgs e)
 		{
 			numberOfInstancesReplaced = 0;
@@ -532,13 +537,11 @@ namespace TextPad
 			FindFocus();
 		}
 
-
-
-	
-
-
+		
 		private void DecreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
+			if (persistantData == null)
+				return;
 			persistantData.FontSize = Math.Max(minFontSize, --persistantData.FontSize);
 			mainTextBox.FontSize = persistantData.FontSize;
 			fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
@@ -555,14 +558,7 @@ namespace TextPad
 			e.CanExecute = (mainTextBox.FontSize < maxFontSize) ? true : false;
 		}
 
-		//Make Command later
-		private void defaultZoom_Click(object sender, RoutedEventArgs e)
-		{
-
-
-		}
-
-
+		// Update the line and column count labels based on the current caret position in the text box
 		private void ChangeLineAndRowCount()
 		{
 			string textBeforeCaret = mainTextBox.Text[..mainTextBox.CaretIndex];
@@ -585,6 +581,7 @@ namespace TextPad
 			e.CanExecute = true;
 		}
 
+		// Handle the print command to print the content of the text box
 		private void PrintCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{ 
 			PrintDialog printDialog = new PrintDialog();
@@ -613,12 +610,15 @@ namespace TextPad
 
 		private void IncreaseZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
+			if (persistantData == null)
+				return;
 			persistantData.FontSize = Math.Min(++persistantData.FontSize, maxFontSize);
 			mainTextBox.FontSize = persistantData.FontSize;
 			fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
 			SerializeJson();
 		}
 
+		// Find the next occurrence of the text in the find box and select it in the text box
 		private void FindNext()
 		{
 
@@ -644,13 +644,23 @@ namespace TextPad
 			}
 
 			if (startingIndexOfFindText == -1)
+			{
+				TextNotFoundMessage();
 				return;
+			}
+				
 
 
 			SelectFindText();
 
 		}
 
+		private void TextNotFoundMessage()
+		{
+			MessageBox.Show($"'{findSearchBox.Text}' not found", "TextPad", MessageBoxButton.OK, MessageBoxImage.Information);
+		}
+
+		// Find the previous occurrence of the text in the find box and select it in the text box
 		private void FindPrevious()
 		{
 			if (string.IsNullOrEmpty(findSearchBox.Text))
@@ -686,7 +696,11 @@ namespace TextPad
 			}
 
 			if (startingIndexOfFindText == -1)
+			{
+				TextNotFoundMessage();
 				return;
+			}
+
 
 			SelectFindText();
 		}
@@ -713,14 +727,19 @@ namespace TextPad
 
 		private void DefaultZoomCmd_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
+			if (persistantData == null)
+				return;
 			persistantData.FontSize = defaultFontSize;
 			mainTextBox.FontSize = persistantData.FontSize;
 			fontSizePercentageLabel.Content = $"Font Size: {persistantData.FontSize}";
 			SerializeJson();
 		}
 
+		// Select the found text in the main text box based on the starting index and length of the find text
+		// This method is called after finding the next or previous occurrence of the find text
 		private void SelectFindText()
 		{
+			
 			int lengthOfFindText = findSearchBox.Text.Length;
 
 			mainTextBox.Focus();
@@ -761,58 +780,5 @@ namespace TextPad
 			persistantData?.WindowPosition = new Point(this.Left, this.Top);
 			SerializeJson();
 		}
-
-		//private void AddTask()
-		//{
-			
-		//	JumpTask jumpTask = new JumpTask();
-
-			
-		//	jumpTask.Title = Path.GetFileName(currentFile);
-		//	jumpTask.Description = currentFile;
-		//	jumpTask.ApplicationPath = currentFile;
-
-
-
-
-
-		//	if (jumpTasks.Count(m => m.Title == jumpTask.Title) == 0)
-		//	{
-		//		jumpTasks.Insert(0, jumpTask);
-		//	} else
-		//	{
-		//		var index = jumpTasks.FindIndex(m => m.Title == jumpTask.Title);
-		//		var selectedTask = jumpTasks[index];
-		//		jumpTasks.RemoveAt(index);
-		//		jumpTasks.Insert(0, jumpTask);
-				
-		//	}
-
-		//	jumpList.JumpItems.Clear();
-
-			
-
-		//	DisplayTasks();
-
-		//	persistantData?.RecentFiles = jumpTasks;
-
-		//	SerializeJson();
-		//}
-
-		//private void DisplayTasks()
-		//{
-		//	jumpList = JumpList.GetJumpList(App.Current);
-
-		//	jumpList.JumpItems.Clear();
-
-		//	jumpTasks = persistantData?.RecentFiles ?? new List<JumpTask>();
-		//	foreach (JumpTask jump in jumpTasks)
-		//	{
-		//		jumpList.JumpItems.Add(jump);
-		//	}
-		//	jumpList.JumpItems.Take(12);
-		//	jumpList.Apply();	
-		//}
-		
 	}
 }
